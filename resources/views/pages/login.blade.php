@@ -2,127 +2,156 @@
 
 @section('title', 'Login')
 
-@section('content')
+@push('styles')
 <style>
-    .auth-container {
-        max-width: 450px;
-        margin: 60px auto;
-        padding: 30px;
-        background: #ffffff;
-        border-radius: 12px;
+  .auth-wrapper{
+    min-height: calc(100vh - 90px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 60px 16px;
+    background:
+      radial-gradient(900px 400px at 15% 10%, rgba(34,197,94,.18), transparent 60%),
+      radial-gradient(800px 400px at 90% 20%, rgba(14,165,233,.18), transparent 55%),
+      linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  }
 
-        /* Light Blue Gradient Shadow */
-        box-shadow: 0 4px 20px rgba(0, 120, 255, 0.18);
-    }
+  .auth-card{
+    width:100%;
+    max-width: 420px;
+    border-radius: 18px;
+    padding: 26px;
+    background: rgba(255,255,255,.78);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: 0 25px 55px rgba(15,23,42,.18);
+  }
 
-    .auth-title {
-        font-size: 2rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 10px;
+  .auth-title{
+    font-size: 1.9rem;
+    font-weight: 800;
+    text-align:center;
+    margin-bottom: 6px;
+    color:#0f172a;
+  }
 
-        /* Light Blue Title */
-        color: #0a3d75;
-    }
+  .auth-subtitle{
+    text-align:center;
+    color:#64748b;
+    font-size: .95rem;
+    margin-bottom: 22px;
+  }
 
-    .auth-subtitle {
-        text-align: center;
-        color: #4e6e94;
-        margin-bottom: 25px;
-        font-size: 1rem;
-    }
+  .auth-field{
+    margin-bottom: 14px;
+  }
 
-    .auth-field label {
-        font-weight: 600;
-        margin-bottom: 6px;
-        display: block;
-        color: #244a73;
-    }
+  .auth-field label{
+    font-weight: 600;
+    font-size: .9rem;
+    color:#334155;
+    margin-bottom: 6px;
+    display:block;
+  }
 
-    .auth-field input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #9bbde0;
-        border-radius: 8px;
-        font-size: 1rem;
-        outline: none;
-        transition: 0.2s;
+  .auth-field input{
+    width:100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: .95rem;
+    transition: .2s ease;
+  }
 
-        /* Light blue input background */
-        background: #f5f9ff;
-    }
+  .auth-field input:focus{
+    outline:none;
+    border-color:#22c55e;
+    box-shadow: 0 0 0 3px rgba(34,197,94,.18);
+    background:#fff;
+  }
 
-    .auth-field input:focus {
-        border-color: #5da7ff;
-        box-shadow: 0 0 6px rgba(93, 167, 255, 0.45);
-    }
+  .auth-btn{
+    width:100%;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    border:none;
+    font-weight: 700;
+    font-size: 1rem;
+    color:#fff;
+    cursor:pointer;
+    background: linear-gradient(135deg, #22c55e, #14b8a6);
+    transition: .25s ease;
+  }
 
-    .auth-btn {
-        width: 100%;
-        padding: 12px;
+  .auth-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 12px 25px rgba(20,184,166,.35);
+  }
 
-        /* Light gradient blue button */
-        background: linear-gradient(135deg, #57a7ff, #2f80ed);
+  .auth-divider{
+    text-align:center;
+    margin: 18px 0 14px;
+    font-size:.85rem;
+    color:#94a3b8;
+  }
 
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: 0.25s;
-    }
+  .auth-bottom{
+    text-align:center;
+    font-size:.95rem;
+    color:#475569;
+  }
 
-    .auth-btn:hover {
-        background: linear-gradient(135deg, #2f80ed, #1b63c6);
-    }
+  .auth-bottom a{
+    font-weight:700;
+    color:#16a34a;
+    text-decoration:none;
+  }
 
-    .auth-bottom {
-        text-align: center;
-        margin-top: 18px;
-        font-size: 1rem;
-        color: #2f4d72;
-    }
-
-    .auth-bottom a {
-        color: #2f80ed;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.2s;
-    }
-
-    .auth-bottom a:hover {
-        text-decoration: underline;
-    }
+  .auth-bottom a:hover{
+    text-decoration:underline;
+  }
 </style>
+@endpush
 
+@section('content')
+<section class="auth-wrapper">
 
+  <div class="auth-card">
 
-<div class="auth-container">
-
-    <h2 class="auth-title">Login</h2>
-    <p class="auth-subtitle">Welcome back! Please sign in to continue.</p>
-
-    <form method="POST" action="{{ route('login.post') }}">
-        @csrf
-
-        <div class="auth-field">
-            <label for="email">Email</label>
-            <input type="email" name="email" required value="{{ old('email') }}">
-        </div>
-
-        <div class="auth-field" style="margin-top: 15px;">
-            <label for="password">Password</label>
-            <input type="password" name="password" required>
-        </div>
-
-        <button class="auth-btn">Login</button>
-    </form>
-
-    <p class="auth-bottom">
-        New here? <a href="{{ route('register.donor') }}">Create an account</a>
+    <h2 class="auth-title">Welcome Back 👋</h2>
+    <p class="auth-subtitle">
+      Sign in to manage donations and pickups
     </p>
 
-</div>
+    <form method="POST" action="{{ route('login.post') }}">
+      @csrf
+
+      <div class="auth-field">
+        <label>Email address</label>
+        <input type="email" name="email" required value="{{ old('email') }}" placeholder="you@example.com">
+      </div>
+
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="••••••••">
+      </div>
+
+      <button type="submit" class="auth-btn">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      Don’t have an account?
+    </div>
+
+    <p class="auth-bottom">
+      <a href="{{ route('signup.choice') }}">Create a new account</a>
+    </p>
+
+  </div>
+
+</section>
 @endsection

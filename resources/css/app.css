@@ -1,11 +1,201 @@
-@import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* -------- Design Tokens -------- */
+:root{
+  --bg: #F5F7FA;
+  --card: #FFFFFF;
+  --text: #111827;
+  --muted: #6B7280;
+  --border: #E5E7EB;
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --primary: #2E7D32;     /* deep green */
+  --primary-600: #256628;
+  --accent: #F9A825;      /* muted yellow */
+  --danger: #DC2626;
+
+  --radius: 14px;
+  --shadow: 0 6px 24px rgba(17,24,39,.08);
+}
+
+/* -------- Base -------- */
+*{ box-sizing:border-box; }
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* -------- Layout Helpers -------- */
+.container{
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+}
+.page{
+  padding: 24px 0;
+}
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card-pad{ padding: 20px; }
+
+/* -------- Typography -------- */
+.h1{ font-size: 28px; font-weight: 700; margin: 0 0 12px; }
+.h2{ font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+.p{ color: var(--muted); margin: 0 0 16px; }
+
+/* -------- Buttons -------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor:pointer;
+  font-weight: 600;
+  text-decoration:none;
+}
+.btn-primary{ background: var(--primary); color:#fff; }
+.btn-primary:hover{ background: var(--primary-600); }
+.btn-outline{ background:#fff; border-color: var(--border); color: var(--text); }
+.btn-accent{ background: var(--accent); color: #111827; }
+
+/* -------- Forms -------- */
+.label{ font-size: 13px; color: var(--muted); margin-bottom: 6px; display:block; }
+.input, select, textarea{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background:#fff;
+}
+.input:focus, select:focus, textarea:focus{
+  outline:none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46,125,50,.12);
+}
+.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* -------- Table -------- */
+.table{
+  width:100%;
+  border-collapse: collapse;
+}
+.table th{
+  text-align:left;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.table td{
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.badge{
+  display:inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-available{ background: rgba(46,125,50,.12); color: var(--primary); }
+.badge-pending{ background: rgba(249,168,37,.18); color: #8A5A00; }
+.badge-done{ background: rgba(17,24,39,.08); color: #111827; }
+
+
+/* ======================================================
+   Bootstrap Friendly Overrides (ADD THIS BELOW)
+   ====================================================== */
+
+/* Make bootstrap container align with theme container width */
+.container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl{
+  max-width: 1100px;
+}
+
+/* Page spacing if you use bootstrap sections */
+.page, main.page{
+  padding: 24px 0;
+}
+
+/* Card: apply theme style to bootstrap cards too */
+.card{
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Form controls (Bootstrap) */
+.form-control, .form-select, input.form-control, textarea.form-control, select.form-select{
+  border-radius: 12px !important;
+  border: 1px solid var(--border) !important;
+  padding: 10px 12px !important;
+}
+.form-control:focus, .form-select:focus{
+  outline: none !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(46,125,50,.12) !important;
+}
+
+/* Buttons: support both your .btn and Bootstrap .btn */
+.btn{
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+}
+
+/* Map bootstrap button variants to theme */
+.btn-success{
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+.btn-success:hover{
+  background: var(--primary-600) !important;
+  border-color: var(--primary-600) !important;
+}
+
+.btn-outline-secondary{
+  background: #fff !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+.btn-outline-secondary:hover{
+  background: rgba(17,24,39,.04) !important;
+}
+
+/* Table: make bootstrap tables look modern */
+.table{
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.table thead th{
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border) !important;
+}
+.table td{
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Navbar: remove purple / keep clean */
+.navbar{
+  background: #fff !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.navbar-brand{
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+}
+.nav-link{
+  color: #374151 !important;
+  font-weight: 600;
+}
+.nav-link:hover{
+  color: var(--primary) !important;
 }

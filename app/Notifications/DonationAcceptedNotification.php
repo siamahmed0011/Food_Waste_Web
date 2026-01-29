@@ -23,20 +23,17 @@ class DonationAcceptedNotification extends Notification
 
     public function via($notifiable)
     {
-        // 🟢 এখন শুধু database e store করবে (dashboard e dekhabe)
-        return ['database'];
+     return ['database'];
     }
 
-    // Email use korchi na, tai toMail optional – চাইলে রাখাই লাগবে না
-    // public function toMail($notifiable) {...}
-
-    public function toDatabase($notifiable)
+    public function toArray($notifiable)
     {
-        return [
-            'ngo_name'   => $this->ngo->name,
-            'food_title' => $this->food->title,
-            'food_id'    => $this->food->id,
-            'ngo_id'     => $this->ngo->id,
-        ];
+    return [
+        'ngo_name'   => $this->ngo->name,
+        'food_title' => $this->food->title,
+        'food_id'    => $this->food->id,
+        'ngo_id'     => $this->ngo->id,
+     ];
     }
+
 }

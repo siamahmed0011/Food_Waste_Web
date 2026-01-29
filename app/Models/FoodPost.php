@@ -46,4 +46,10 @@ class FoodPost extends Model
     {
         return $this->hasOne(PickupRequest::class, 'food_post_id');
     }
+
+    public function scopeAvailable($query)
+ {
+    return $query->where('status', 'available');
+ }
+
 }

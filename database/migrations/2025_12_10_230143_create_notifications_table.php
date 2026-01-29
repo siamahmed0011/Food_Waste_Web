@@ -1,54 +1,24 @@
 <?php
 
-namespace App\Notifications;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use App\Models\FoodPost;
-use App\Models\Ngo;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
-
-class DonationAcceptedNotification extends Notification implements ShouldQueue
-{
-    use Queueable;
-
-    public $ngo;
-    public $food;
-
-    public function __construct(Ngo $ngo, FoodPost $food)
+return new class extends Migration {
+    public function up(): void
     {
-        $this->ngo  = $ngo;
-        $this->food = $food;
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+        });
     }
 
-    public function via($notifiable)
+    public function down(): void
     {
-        // Email + database (dashboard)
-        return ['mail', 'database'];
+        Schema::dropIfExists('notifications');
     }
-
-    // Email message
-    public function toMail($notifiable)
-    {
-        return (new MailMessage)
-            ->subject('Your food donation was accepted')
-            ->greeting('Hi ' . $notifiable->name . ' 👋')
-            ->line('Good news! The organization "' . $this->ngo->name . '" has accepted your donation.')
-            ->line('Food: ' . $this->food->title . ' (' . $this->food->quantity . ' ' . $this->food->unit . ')')
-            ->line('Pickup address: ' . $this->food->pickup_address)
-            ->line('They will arrange pickup within your specified time window.')
-            ->line('Thank you for helping reduce food waste 💚');
-    }
-
-    // Database data (dashboard notifications)
-    public function toDatabase($notifiable)
-    {
-        return [
-            'ngo_name'   => $this->ngo->name,
-            'food_title' => $this->food->title,
-            'food_id'    => $this->food->id,
-            'ngo_id'     => $this->ngo->id,
-        ];
-    }
-}
+};

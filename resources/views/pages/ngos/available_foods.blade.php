@@ -33,7 +33,7 @@
                                 <th>Title</th>
                                 <th>Qty</th>
                                 <th>Pickup Address</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
                         </thead>
 
@@ -43,23 +43,20 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $food->donor->name }}</td>
 
-                                    {{-- 🔹 Title clickable -> full details page --}}
-                                    <td>
-                                        <a href="{{ route('ngo.food.show', $food) }}">
-                                            {{ $food->title }}
-                                        </a>
-                                    </td>
+                                    {{-- ✅ Title (no route error) --}}
+                                    <td>{{ $food->title }}</td>
 
                                     <td>{{ $food->quantity }} {{ $food->unit }}</td>
                                     <td>{{ $food->pickup_address }}</td>
 
+                                    {{-- ✅ Safe disabled button (no route yet) --}}
                                     <td>
-                                        <form action="{{ route('ngo.food.accept', $food) }}" method="POST">
+                                       <form action="{{ route('ngo.food.accept', $food->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-success btn-sm">
-                                                Accept
-                                            </button>
-                                        </form>
+                                         <button type="submit" class="btn btn-success btn-sm">
+                                            Accept
+                                         </button>
+                                       </form>
                                     </td>
                                 </tr>
                             @endforeach

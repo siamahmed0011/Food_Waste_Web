@@ -4,146 +4,93 @@
 @section('title', 'My Donations')
 
 @section('content')
-    {{-- ======== MY DONATIONS PAGE CSS ======== --}}
-    <style>
-        .donations-wrapper{
-            background: #f8fafc;
-        }
 
+    {{-- Page-specific: keep minimal (only what truly unique) --}}
+    <style>
+        /* Keep wrapper very light; global theme handles bg */
+        .donations-wrapper{ padding: 24px 0; }
+
+        /* Hero card: toned-down, brand-consistent */
         .donor-hero-card{
-            background: linear-gradient(135deg,#22c55e,#16a3b8);
+            background: linear-gradient(135deg, var(--primary), #26A69A);
             border-radius: 18px;
             color:#fff;
-            padding: 1.8rem 2rem;
-            box-shadow: 0 18px 35px rgba(15, 23, 42, .25);
+            padding: 1.6rem 1.8rem;
+            box-shadow: 0 14px 30px rgba(17,24,39,.16);
         }
-
         .donor-hero-title{
-            font-size: clamp(1.9rem, 3vw, 2.3rem);
+            font-size: clamp(1.8rem, 3vw, 2.2rem);
             font-weight: 800;
-            letter-spacing: .02em;
+            letter-spacing: .01em;
         }
+        .donor-hero-subtitle{ font-size: .95rem; opacity: .92; }
 
-        .donor-hero-subtitle{
-            font-size: .95rem;
-            opacity: .94;
-        }
-
+        /* Pills */
         .hero-stat-pill{
             border-radius:999px;
-            background: rgba(255,255,255,.12);
-            padding:.4rem .9rem;
+            background: rgba(255,255,255,.14);
+            padding:.38rem .85rem;
             font-size:.82rem;
             display:inline-flex;
             align-items:center;
             gap:.35rem;
         }
+        .hero-stat-number{ font-weight:800; font-size:1rem; }
 
-        .hero-stat-number{
-            font-weight:700;
-            font-size:1rem;
-        }
-
-        .mydon-card{
-            border-radius: 14px;
-            border:0;
-            box-shadow:0 10px 25px rgba(15,23,42,.08);
-            overflow:hidden;
-        }
-
+        /* Table feel */
         .mydon-table thead{
-            background:#f1f5f9;
-            font-size:.9rem;
+            background: rgba(17,24,39,.02);
+            font-size:.78rem;
             text-transform:uppercase;
-            letter-spacing:.06em;
+            letter-spacing:.08em;
         }
-
         .mydon-table tbody tr{
             transition: background .15s ease, transform .15s ease;
         }
-
         .mydon-table tbody tr:hover{
-            background:#f9fafb;
+            background: rgba(17,24,39,.02);
             transform: translateY(-1px);
         }
 
-        .donation-title{
-            font-weight:600;
-            font-size:.98rem;
-        }
+        /* Title cell */
+        .donation-title{ font-weight: 700; font-size: .98rem; }
+        .donation-category{ font-size: .82rem; color: var(--muted); }
 
-        .donation-category{
-            font-size:.8rem;
-            color:#6b7280;
-        }
+        .donation-title a{ color: inherit; text-decoration: none; }
+        .donation-title a:hover{ text-decoration: underline; }
 
-        /* Title link – clickable but looks like text */
-        .donation-title a{
-            color: inherit;
-            text-decoration: none;
-        }
-        .donation-title a:hover{
-            text-decoration: underline;
-        }
-
+        /* Use global badges when possible */
         .status-badge{
             border-radius:999px;
-            padding:.25rem .8rem;
+            padding:.28rem .75rem;
             font-size:.78rem;
-            font-weight:600;
+            font-weight:700;
+            display:inline-flex;
         }
 
-        .status-available{
-            background:#dcfce7;
-            color:#166534;
-        }
-        .status-reserved{
-            background:#fef9c3;
-            color:#854d0e;
-        }
-        .status-completed{
-            background:#dbeafe;
-            color:#1d4ed8;
-        }
-        .status-other{
-            background:#fee2e2;
-            color:#b91c1c;
-        }
-
-        .posted-time-main{
-            font-size:.9rem;
-            font-weight:500;
-        }
-
-        .posted-time-sub{
-            font-size:.78rem;
-            color:#9ca3af;
-        }
-
+        /* Empty state (no bootstrap icons dependency) */
         .empty-state-icon{
-            width:60px;
-            height:60px;
+            width:56px; height:56px;
             border-radius:50%;
-            background:#e5f6ff;
-            display:flex;
-            align-items:center;
-            justify-content:center;
+            background: rgba(38,161,168,.10);
+            display:flex; align-items:center; justify-content:center;
             margin:0 auto 1rem;
-            color:#0284c7;
-            font-size:1.7rem;
+            color:#26A69A;
+            font-size:1.6rem;
+            font-weight:800;
         }
 
-        /* action buttons */
+        /* Actions */
         .mydon-actions .btn{
             font-size:.75rem;
-            padding:.25rem .6rem;
+            padding:.30rem .65rem;
         }
     </style>
 
-    <div class="donations-wrapper py-4 py-md-5">
+    <div class="donations-wrapper">
         <div class="container">
 
-            {{-- ======== TOP SUMMARY + BUTTON ======== --}}
+            {{-- ======== HERO ======== --}}
             <div class="donor-hero-card mb-4 mb-md-5">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div>
@@ -167,38 +114,35 @@
                             </span>
                         </div>
 
-                        <a href="{{ route('donor.food.create') }}" class="btn btn-light btn-sm fw-semibold">
+                        {{-- CTA: make it stand out but clean --}}
+                        <a href="{{ route('donor.food.create') }}" class="btn btn-light btn-sm fw-semibold px-3">
                             + Post New Food
                         </a>
                     </div>
                 </div>
 
-                {{-- ======== FILTER + SEARCH FORM ======== --}}
+                {{-- ======== FILTER + SEARCH ======== --}}
                 <form method="GET" action="{{ route('donor.donations') }}" class="row g-2 mt-3">
                     <div class="col-12 col-md-5">
-                        <input
-                            type="text"
-                            name="q"
-                            class="form-control form-control-sm"
-                            placeholder="Search by title..."
-                            value="{{ $searchTerm }}"
-                        >
+                        <input type="text"
+                               name="q"
+                               class="form-control form-control-sm"
+                               placeholder="Search by title..."
+                               value="{{ $searchTerm }}">
                     </div>
 
                     <div class="col-6 col-md-3">
                         <select name="status" class="form-select form-select-sm">
                             <option value="">All status</option>
                             <option value="available" {{ $filterStatus === 'available' ? 'selected' : '' }}>Available</option>
-                            <option value="reserved" {{ $filterStatus === 'reserved' ? 'selected' : '' }}>Reserved</option>
+                            <option value="reserved"  {{ $filterStatus === 'reserved'  ? 'selected' : '' }}>Reserved</option>
                             <option value="completed" {{ $filterStatus === 'completed' ? 'selected' : '' }}>Completed</option>
                             <option value="cancelled" {{ $filterStatus === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
 
                     <div class="col-6 col-md-2 d-grid">
-                        <button class="btn btn-sm btn-light fw-semibold" type="submit">
-                            Apply
-                        </button>
+                        <button class="btn btn-sm btn-light fw-semibold" type="submit">Apply</button>
                     </div>
 
                     @if($searchTerm || $filterStatus)
@@ -213,12 +157,9 @@
 
             {{-- ======== MAIN CONTENT ======== --}}
             @if($posts->isEmpty())
-                {{-- Empty state --}}
-                <div class="card mydon-card">
+                <div class="card">
                     <div class="card-body text-center py-5">
-                        <div class="empty-state-icon">
-                            <i class="bi bi-emoji-smile"></i>
-                        </div>
+                        <div class="empty-state-icon">✓</div>
                         <h5 class="fw-semibold mb-2">No donations found</h5>
 
                         @if($searchTerm || $filterStatus)
@@ -239,8 +180,7 @@
                     </div>
                 </div>
             @else
-                {{-- Table card --}}
-                <div class="card mydon-card">
+                <div class="card">
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table mydon-table align-middle mb-0">
@@ -253,10 +193,20 @@
                                         <th style="width: 14%">Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     @foreach($posts as $post)
                                         @php
-                                            $status = $post->status ?? 'available';
+                                            $status = strtolower($post->status ?? 'available');
+
+                                            $statusClass = match($status){
+                                                'available' => 'badge badge-available',
+                                                'reserved'  => 'badge badge-pending',
+                                                'completed' => 'badge badge-done',
+                                                default     => 'badge badge-done',
+                                            };
+
+                                            $statusText = ucfirst($status);
                                         @endphp
 
                                         <tr>
@@ -267,6 +217,7 @@
                                                         {{ $post->title }}
                                                     </a>
                                                 </div>
+
                                                 @if(!empty($post->category))
                                                     <div class="donation-category">
                                                         Category: {{ $post->category }}
@@ -283,30 +234,24 @@
                                                 @endif
                                             </td>
 
-                                            {{-- Status badges --}}
+                                            {{-- Status --}}
                                             <td>
-                                                @if($status === 'available')
-                                                    <span class="status-badge status-available">Available</span>
-                                                @elseif($status === 'reserved')
-                                                    <span class="status-badge status-reserved">Reserved</span>
-                                                @elseif($status === 'completed')
-                                                    <span class="status-badge status-completed">Completed</span>
-                                                @else
-                                                    <span class="status-badge status-other">{{ ucfirst($status) }}</span>
-                                                @endif
+                                                <span class="status-badge {{ $statusClass }}">
+                                                    {{ $statusText }}
+                                                </span>
                                             </td>
 
                                             {{-- Posted time --}}
                                             <td>
-                                                <div class="posted-time-main">
+                                                <div class="fw-semibold">
                                                     {{ $post->created_at->format('d M Y, h:i A') }}
                                                 </div>
-                                                <div class="posted-time-sub">
+                                                <div class="text-muted small">
                                                     {{ $post->created_at->diffForHumans() }}
                                                 </div>
                                             </td>
 
-                                            {{-- Actions: View / Edit / Delete --}}
+                                            {{-- Actions --}}
                                             <td>
                                                 <div class="mydon-actions d-flex flex-wrap gap-1">
                                                     <a href="{{ route('donor.food.show', $post->id) }}"
@@ -325,8 +270,7 @@
                                                           onsubmit="return confirm('Are you sure you want to delete this post?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit"
-                                                                class="btn btn-outline-danger btn-sm">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
                                                             Delete
                                                         </button>
                                                     </form>
@@ -335,6 +279,7 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -344,4 +289,3 @@
         </div>
     </div>
 @endsection
-

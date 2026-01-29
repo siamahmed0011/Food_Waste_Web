@@ -10,6 +10,8 @@ use App\Http\Controllers\Donor\ProfileController;
 use App\Http\Controllers\Donor\NgoBrowseController;
 use App\Http\Controllers\NgoController;
 use App\Http\Controllers\NgoOrderController;
+use App\Http\Controllers\Ngo\NgoFoodController;
+use App\Http\Controllers\Admin\AdminFoodController;
 
 
 // ====================== PUBLIC ROUTES ======================
@@ -129,38 +131,41 @@ Route::middleware('auth')
 
 // ====================== NGO ROUTES ======================
 
-Route::get('/ngo/dashboard', [NgoController::class, 'index'])
-    ->name('ngo.dashboard')
-    ->middleware('auth');
+// ====================== NGO ROUTES ======================
+Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
 
-Route::view('/ngo/profile', 'pages.ngos.profile')
-    ->name('ngo.profile')
-    ->middleware('auth');
+    Route::get('/dashboard', [NgoController::class, 'index'])->name('dashboard');
 
-// Orders (jodi controller diye set kora thake)
-Route::get('/ngo/orders', [\App\Http\Controllers\NgoOrderController::class, 'index'])
-    ->name('ngo.orders')
-    ->middleware('auth');
+    Route::view('/profile', 'pages.ngos.profile')->name('profile');
 
-// Settings page dekhano (GET)
-Route::view('/ngo/settings', 'pages.ngos.settings')
-    ->name('ngo.settings')
-    ->middleware('auth');
+    Route::get('/orders', [NgoOrderController::class, 'index'])->name('orders');
+    Route::patch('/orders/{order}/status', [NgoOrderController::class, 'updateStatus'])
+        ->name('orders.updateStatus');
 
-// Settings form submit (POST)   ei line ta NOTUN
-Route::post('/ngo/settings', [NgoController::class, 'updateSettings'])
-    ->name('ngo.settings.update')
-    ->middleware('auth');
-// Update order status (PATCH)  ei line ta NOTUN
-Route::patch('/ngo/orders/{order}/status', [NgoOrderController::class, 'updateStatus'])
-    ->name('ngo.orders.updateStatus')
-    ->middleware('auth');
-// ALL NGOs list (view only)
-Route::get('/ngo/all-ngos', [NgoController::class, 'allNgos'])
-    ->name('ngo.all_ngos')
-    ->middleware('auth');
+    Route::view('/settings', 'pages.ngos.settings')->name('settings');
+    Route::post('/settings', [NgoController::class, 'updateSettings'])->name('settings.update');
 
-// Donors list
-Route::get('/ngo/donors', [NgoController::class, 'donors'])
-    ->name('ngo.donors')
-    ->middleware('auth');
+    Route::get('/all-ngos', [NgoController::class, 'allNgos'])->name('all_ngos');
+    Route::get('/donors', [NgoController::class, 'donors'])->name('donors');
+
+    // ✅ Available Foods (NGO)
+    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
+});
+
+Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
+
+    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
+
+    // ✅ food details
+    Route::get('/food/{foodPost}', [NgoFoodController::class, 'show'])->name('food.show');
+
+    // ✅ accept/request pickup
+    Route::post('/food/{foodPost}/accept', [NgoFoodController::class, 'accept'])->name('food.accept');
+});
+
+Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
+    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
+
+    // ✅ Food details page
+    Route::get('/food/{foodPost}', [NgoFoodController::class, 'show'])->name('food.show');
+});

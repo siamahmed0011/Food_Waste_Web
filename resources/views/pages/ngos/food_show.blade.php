@@ -35,11 +35,11 @@
 
                             <li><strong>Category:</strong> {{ $food->category ?? '-' }}</li>
 
-                            <li><strong>Quantity:</strong> 
+                            <li><strong>Quantity:</strong>
                                 {{ $food->quantity }} {{ $food->unit }}
                             </li>
 
-                            <li><strong>Status:</strong> 
+                            <li><strong>Status:</strong>
                                 <span class="badge bg-info text-dark">
                                     {{ ucfirst($food->status) }}
                                 </span>
@@ -69,21 +69,21 @@
                         @endif
                     </div>
 
-                    {{-- Donor Information --}}
+                    {{-- ✅ Donor Information (fixed) --}}
                     <div class="col-md-5">
                         <h5>Donor Information</h5>
 
                         <ul class="list-unstyled">
-                            <li><strong>Name:</strong> {{ $donor->name }}</li>
-                            <li><strong>Email:</strong> {{ $donor->email }}</li>
-                            <li><strong>Phone:</strong> {{ $donor->phone ?? '-' }}</li>
-                            <li><strong>Address:</strong> {{ $donor->address ?? '-' }}</li>
+                            <li><strong>Name:</strong> {{ $food->donor->name ?? '-' }}</li>
+                            <li><strong>Email:</strong> {{ $food->donor->email ?? '-' }}</li>
+                            <li><strong>Phone:</strong> {{ $food->donor->phone ?? '-' }}</li>
+                            <li><strong>Address:</strong> {{ $food->donor->address ?? '-' }}</li>
                         </ul>
 
                         @if($food->image_path)
                             <div class="mt-3">
-                                <img src="{{ asset('storage/' . $food->image_path) }}" 
-                                     class="img-fluid rounded" 
+                                <img src="{{ asset('storage/' . $food->image_path) }}"
+                                     class="img-fluid rounded"
                                      alt="Food Image">
                             </div>
                         @endif
@@ -94,7 +94,7 @@
 
                 {{-- Accept Button --}}
                 @if($food->status === 'available')
-                    <form action="{{ route('ngo.food.accept', $food) }}" method="POST">
+                    <form action="{{ route('ngo.food.accept', $food->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-success btn-lg">
                             Accept This Donation
