@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Donor;
 
 use App\Http\Controllers\Controller;
 use App\Models\FoodPost;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -90,5 +91,21 @@ class ProfileController extends Controller
         return redirect()
             ->route('donor.profile')
             ->with('success', 'Password updated successfully!');
+
+           
     }
+
+        // ========== VIEW NGO DETAILS (Donor) ==========
+    public function showNgo(User $user)
+    {
+        // Only organization profiles allowed
+        if ($user->role !== 'organization') {
+            abort(404);
+        }
+
+        return view('pages.donor.ngo_show', [
+            'ngoUser' => $user,
+        ]);
+    }
+
 }

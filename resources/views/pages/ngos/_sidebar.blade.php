@@ -1,41 +1,48 @@
-<div class="list-group shadow-sm rounded-3">
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="p-3 border-bottom">
+            <div class="fw-bold">NGO Panel</div>
+            <div class="text-muted small">Manage requests & profile</div>
+        </div>
 
-    <a href="{{ route('ngo.dashboard') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
-        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-    </a>
+        <div class="list-group list-group-flush">
+            <a href="{{ route('ngo.dashboard') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
+                Dashboard
+            </a>
 
-    <a href="{{ route('ngo.profile') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.profile') ? 'active' : '' }}">
-        <i class="bi bi-person-badge me-2"></i> Profile
-    </a>
+            <a href="{{ route('ngo.available_foods') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.available_foods') ? 'active' : '' }}">
+                Available Foods
+            </a>
 
-    <a href="{{ route('ngo.orders') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.orders') ? 'active' : '' }}">
-        <i class="bi bi-box-seam me-2"></i> Orders
-    </a>
+            <a href="{{ route('ngo.orders') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.orders*') ? 'active' : '' }}">
+                My Requests
+            </a>
+             
+             <a href="{{ route('ngo.donors') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.donors') ? 'active' : '' }}">
+                Donors
+            </a>
 
-    {{-- ⭐ NEW: Available Foods --}}
-    <a href="{{ route('ngo.available_foods') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.available_foods') ? 'active' : '' }}">
-        <i class="bi bi-basket me-2"></i> Available Foods
-    </a>
+             <a href="{{ route('ngo.all_ngos') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.all_ngos') ? 'active' : '' }}">
+                All NGOs
+            </a>
 
-    {{-- NEW: All NGOs --}}
-    <a href="{{ route('ngo.all_ngos') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.all_ngos') ? 'active' : '' }}">
-        <i class="bi bi-building me-2"></i> All NGOs
-    </a>
+            <a href="{{ route('ngo.profile') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.profile') ? 'active' : '' }}">
+                Profile
+            </a>
 
-    {{-- NEW: Donors list --}}
-    <a href="{{ route('ngo.donors') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.donors') ? 'active' : '' }}">
-        <i class="bi bi-people me-2"></i> Donors
-    </a>
+            <a href="{{ route('ngo.settings') }}"
+               class="list-group-item list-group-item-action {{ request()->routeIs('ngo.settings*') ? 'active' : '' }}">
+                Settings
+            </a>
 
-    <a href="{{ route('ngo.settings') }}"
-       class="list-group-item list-group-item-action {{ request()->routeIs('ngo.settings') ? 'active' : '' }}">
-        <i class="bi bi-gear me-2"></i> Settings
-    </a>
+            <div class="border-top"></div>
 
+        </div>
+    </div>
 </div>

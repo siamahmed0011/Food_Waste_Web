@@ -45,6 +45,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::get('/dashboard', [AuthController::class, 'dashboard'])
     ->middleware('auth')
     ->name('dashboard');
+Route::get('/ngos', [NgoController::class, 'publicList'])->name('ngos.public');
 
 
 // ====================== ADMIN ROUTES ======================
@@ -112,6 +113,15 @@ Route::middleware('auth')
             ->name('ngos.index');
 
 
+        Route::post('/pickup-requests/{pickupRequest}/approve', [PickupController::class, 'approve'])->name('pickups.approve');
+        Route::post('/pickup-requests/{pickupRequest}/reject', [PickupController::class, 'reject'])->name('pickups.reject');
+        Route::post('/pickup-requests/{pickupRequest}/picked-up', [PickupController::class, 'pickedUp'])->name('pickups.pickedup');
+        Route::post('/pickup-requests/{pickupRequest}/complete', [PickupController::class, 'complete'])->name('pickups.complete');
+        Route::get('/ngo/{user}', [ProfileController::class, 'showNgo'])->name('ngo.show');
+
+
+
+
         // ================== PICKUP MODULE (BACKEND) ==================
 
         // Show pickup form   GET /donor/pickups/create
@@ -128,44 +138,25 @@ Route::middleware('auth')
     });
 
 
-
 // ====================== NGO ROUTES ======================
-
-// ====================== NGO ROUTES ======================
-Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
+    Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [NgoController::class, 'index'])->name('dashboard');
 
+    // ✅ these must be INSIDE the group to become ngo.profile, ngo.settings
     Route::view('/profile', 'pages.ngos.profile')->name('profile');
-
-    Route::get('/orders', [NgoOrderController::class, 'index'])->name('orders');
-    Route::patch('/orders/{order}/status', [NgoOrderController::class, 'updateStatus'])
-        ->name('orders.updateStatus');
-
     Route::view('/settings', 'pages.ngos.settings')->name('settings');
     Route::post('/settings', [NgoController::class, 'updateSettings'])->name('settings.update');
 
+    Route::get('/orders', [NgoOrderController::class, 'index'])->name('orders');
+    Route::patch('/orders/{order}/status', [NgoOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
+    Route::get('/food/{foodPost}', [NgoFoodController::class, 'show'])->name('food.show');
+    Route::post('/food/{foodPost}/accept', [NgoFoodController::class, 'accept'])->name('food.accept');
+
     Route::get('/all-ngos', [NgoController::class, 'allNgos'])->name('all_ngos');
     Route::get('/donors', [NgoController::class, 'donors'])->name('donors');
+    Route::post('/orders/{pickupRequest}/cancel', [NgoOrderController::class, 'cancel'])->name('orders.cancel');
 
-    // ✅ Available Foods (NGO)
-    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
-});
-
-Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
-
-    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
-
-    // ✅ food details
-    Route::get('/food/{foodPost}', [NgoFoodController::class, 'show'])->name('food.show');
-
-    // ✅ accept/request pickup
-    Route::post('/food/{foodPost}/accept', [NgoFoodController::class, 'accept'])->name('food.accept');
-});
-
-Route::prefix('ngo')->name('ngo.')->middleware(['auth'])->group(function () {
-    Route::get('/available-foods', [NgoFoodController::class, 'index'])->name('available_foods');
-
-    // ✅ Food details page
-    Route::get('/food/{foodPost}', [NgoFoodController::class, 'show'])->name('food.show');
 });

@@ -19,46 +19,59 @@ class NgoController extends Controller
     // NGO DASHBOARD
     // ===========================
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // If logged-in user is an Organization
-        if ($user->role === 'organization') {
-            $ngo  = Ngo::where('email', $user->email)->first();
-            $ngos = $ngo ? collect([$ngo]) : collect();
-            $ngoId = $ngo?->id;
-        }
-        // If Admin → see all NGOs
-        else {
-            $ngos  = Ngo::latest()->get();
-            $ngoId = null;
-        }
+    // If logged-in user is an Organization
+    if ($user->role === 'organization') {
+        // Keep NGO table usage for listing/profile purposes
+        $ngo  = Ngo::where('email', $user->email)->first();
+        $ngos = $ngo ? collect([$ngo]) : collect();
 
-        // Default stats
-        $stats = [
-            'total_pickups'     => 0,
-            'pending_requests'  => 0,
-            'completed_pickups' => 0,
-        ];
-
-        // If NGO is logged in → calculate real stats
-        if ($ngoId) {
-            $stats['total_pickups'] =
-                PickupRequest::where('ngo_id', $ngoId)->count();
-
-            $stats['pending_requests'] =
-                PickupRequest::where('ngo_id', $ngoId)
-                    ->where('status', 'pending')
-                    ->count();
-
-            $stats['completed_pickups'] =
-                PickupRequest::where('ngo_id', $ngoId)
-                    ->where('status', 'completed')
-                    ->count();
-        }
-
-        return view('pages.ngos.index', compact('ngos', 'stats'));
+        // ✅ New schema uses ngo_user_id = users.id
+        $ngoUserId = $user->id;
     }
+    // If Admin → see all NGOs
+    else {
+        $ngos  = Ngo::latest()->get();
+        $ngoUserId = null;
+    }
+
+    // Default stats
+    $stats = [
+        'total_pickups'     => 0,
+        'pending_requests'  => 0,
+        'completed_pickups' => 0,
+    ];
+
+    // ✅ Recent activity list (for dashboard)
+    $recentRequests = collect();
+
+    // ✅ If NGO user logged in → calculate stats + recent requests
+    if ($ngoUserId) {
+        $stats['total_pickups'] =
+            PickupRequest::where('ngo_user_id', $ngoUserId)->count();
+
+        $stats['pending_requests'] =
+            PickupRequest::where('ngo_user_id', $ngoUserId)
+                ->where('status', 'pending')
+                ->count();
+
+        $stats['completed_pickups'] =
+            PickupRequest::where('ngo_user_id', $ngoUserId)
+                ->where('status', 'completed')
+                ->count();
+
+        // ✅ last 5 requests (with relations)
+        $recentRequests = PickupRequest::with(['foodPost', 'donor'])
+            ->where('ngo_user_id', $ngoUserId)
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+
+    return view('pages.ngos.index', compact('ngos', 'stats', 'recentRequests'));
+}
 
     // ===========================
     // NGO CREATE FORM
@@ -182,7 +195,6 @@ class NgoController extends Controller
     // ===========================
     public function allNgos()
     {
-        // sob NGO newest first
         $ngos = Ngo::latest()->get();
 
         return view('pages.ngos.all_ngos', compact('ngos'));
@@ -193,7 +205,6 @@ class NgoController extends Controller
     // ===========================
     public function donors()
     {
-        // sob donor user newest first
         $donors = User::where('role', 'donor')
             ->latest()
             ->get();

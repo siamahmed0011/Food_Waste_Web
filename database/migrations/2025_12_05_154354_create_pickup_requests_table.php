@@ -11,27 +11,36 @@ return new class extends Migration
         Schema::create('pickup_requests', function (Blueprint $table) {
             $table->id();
 
-            // Foreign Keys
-            $table->unsignedBigInteger('ngo_id');
-            $table->unsignedBigInteger('donor_id');
-            $table->unsignedBigInteger('food_post_id')->nullable();
+            // ✅ Use users table for both donor + NGO accounts (clean & consistent)
+            $table->foreignId('food_post_id')->constrained('food_posts')->cascadeOnDelete();
+            $table->foreignId('donor_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('ngo_user_id')->constrained('users')->cascadeOnDelete();
 
-            // Pickup details
-            $table->string('food_title')->nullable();
-            $table->dateTime('pickup_time')->nullable();
+            // ✅ Professional status flow
+            // pending / approved / rejected / cancelled / picked_up / completed
+            $table->string('status')->default('pending');
 
-            // Status: pending / accepted / completed / cancelled
-            $table->enum('status', ['pending', 'accepted', 'completed', 'cancelled'])
-                  ->default('pending');
+            // ✅ Time windows (realistic pickup scheduling)
+            $table->dateTime('pickup_time_from')->nullable();
+            $table->dateTime('pickup_time_to')->nullable();
+            $table->dateTime('final_pickup_at')->nullable();
 
+            $table->string('contact_phone')->nullable();
             $table->text('note')->nullable();
+
+            // ✅ Timeline timestamps (super professional)
+            $table->dateTime('approved_at')->nullable();
+            $table->dateTime('rejected_at')->nullable();
+            $table->string('rejected_reason')->nullable();
+
+            $table->dateTime('cancelled_at')->nullable();
+            $table->dateTime('picked_up_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
 
             $table->timestamps();
 
-            // Relations
-            $table->foreign('ngo_id')->references('id')->on('ngos')->onDelete('cascade');
-            $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('food_post_id')->references('id')->on('food_posts')->onDelete('set null');
+            // ✅ same NGO cannot request same post twice
+            $table->unique(['food_post_id', 'ngo_user_id']);
         });
     }
 

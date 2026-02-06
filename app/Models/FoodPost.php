@@ -42,14 +42,22 @@ class FoodPost extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function pickupRequest()
+    // ✅ Multiple NGOs can request pickup for same food post
+    public function pickupRequests()
     {
-        return $this->hasOne(PickupRequest::class, 'food_post_id');
+        return $this->hasMany(PickupRequest::class, 'food_post_id');
+    }
+
+    // ✅ Only the approved one (if needed)
+    public function approvedPickupRequest()
+    {
+        return $this->hasOne(PickupRequest::class, 'food_post_id')
+            ->where('status', 'approved');
     }
 
     public function scopeAvailable($query)
- {
-    return $query->where('status', 'available');
- }
-
+    {
+        return $query->where('status', 'available');
+    }
 }
+

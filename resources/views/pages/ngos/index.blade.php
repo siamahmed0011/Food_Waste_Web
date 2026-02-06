@@ -1,152 +1,139 @@
-@extends('layouts.main')
+@extends('layouts.app')
 
 @section('title', 'NGO Dashboard')
 
 @section('content')
-<div class="row mt-3">
-    {{-- LEFT SIDEBAR --}}
-    <div class="col-md-3 mb-3 mb-md-0">
-        @include('pages.ngos._sidebar')
-    </div>
+<div class="container py-4">
 
-    {{-- MAIN CONTENT --}}
-    <div class="col-md-9">
-        <div class="card shadow-sm border-0 dashboard-card mb-4">
-            <div class="card-body pb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h3 class="mb-0">
-                            Welcome, {{ auth()->user()->organization_name ?? auth()->user()->name }}
-                        </h3>
-                        <small class="text-muted">Here is an overview of your NGO activity.</small>
-                    </div>
-
-                    @if(auth()->user()->role === 'admin')
-                        <a href="{{ route('ngos.create') }}" class="btn btn-primary btn-sm">
-                            + Add New NGO
-                        </a>
-                    @endif
-                </div>
-            </div>
+    <div class="row g-4">
+        {{-- Sidebar --}}
+        <div class="col-12 col-lg-3">
+            @include('pages.ngos._sidebar')
         </div>
 
-        {{-- FLASH MESSAGE --}}
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+        {{-- Main --}}
+        <div class="col-12 col-lg-9">
 
-        {{-- STATS CARDS --}}
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Total Pickups</p>
-                                <h4 class="mb-0 fw-bold">{{ $stats['total_pickups'] }}</h4>
-                                <small class="text-success">+3 this week</small>
+            {{-- Header --}}
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+                <div>
+                    <h3 class="mb-1 fw-bold">NGO Dashboard</h3>
+                    <div class="text-muted">Overview of your pickup requests & activity.</div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ route('ngo.available_foods') }}" class="btn btn-primary">
+                        Browse Available Foods
+                    </a>
+                    <a href="{{ route('ngo.orders') }}" class="btn btn-outline-secondary">
+                        My Requests
+                    </a>
+                </div>
+            </div>
+
+            {{-- Stats --}}
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="text-muted small">Total Requests</div>
+                            <div class="fs-3 fw-bold">{{ $stats['total_pickups'] ?? 0 }}</div>
+                            <div class="text-muted small mt-1">All pickup requests you made</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="text-muted small">Pending</div>
+                            <div class="fs-3 fw-bold">{{ $stats['pending_requests'] ?? 0 }}</div>
+                            <div class="small mt-1">
+                                @if(($stats['pending_requests'] ?? 0) > 0)
+                                    <span class="text-warning fw-semibold">Waiting for donor approval</span>
+                                @else
+                                    <span class="text-muted">No pending requests</span>
+                                @endif
                             </div>
-                            <div class="display-6 text-primary">
-                                <i class="bi bi-truck"></i>
-                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="text-muted small">Completed</div>
+                            <div class="fs-3 fw-bold">{{ $stats['completed_pickups'] ?? 0 }}</div>
+                            <div class="text-muted small mt-1">Completed pickups history</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Pending Requests</p>
-                                <h4 class="mb-0 fw-bold">{{ $stats['pending_requests'] }}</h4>
-                                <small class="text-warning">Action needed</small>
-                            </div>
-                            <div class="display-6 text-warning">
-                                <i class="bi bi-hourglass-split"></i>
-                            </div>
+            {{-- Recent Activity (professional) --}}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <h5 class="mb-0 fw-bold">Recent Requests</h5>
+                            <div class="text-muted small">Latest pickup requests you created</div>
                         </div>
+                        <a href="{{ route('ngo.orders') }}" class="btn btn-outline-secondary btn-sm">View all</a>
                     </div>
-                </div>
-            </div>
 
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="text-muted mb-1">Completed Pickups</p>
-                                <h4 class="mb-0 fw-bold">{{ $stats['completed_pickups'] }}</h4>
-                                <small class="text-muted">Great job! 🎉</small>
+                    {{-- If you don't have recent list passed yet, show empty state --}}
+                    @isset($recentRequests)
+                        @if($recentRequests->count() === 0)
+                            <div class="text-center py-4 text-muted">
+                                No requests yet. Browse foods to request a pickup.
                             </div>
-                            <div class="display-6 text-success">
-                                <i class="bi bi-check-circle"></i>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Food</th>
+                                            <th>Donor</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Requested</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentRequests as $r)
+                                            @php
+                                                $badge = match($r->status) {
+                                                    'pending'   => 'warning',
+                                                    'approved'  => 'primary',
+                                                    'picked_up' => 'dark',
+                                                    'completed' => 'success',
+                                                    'rejected'  => 'danger',
+                                                    'cancelled' => 'secondary',
+                                                    default     => 'secondary'
+                                                };
+                                            @endphp
+                                            <tr>
+                                                <td class="fw-semibold">{{ $r->foodPost?->title ?? '—' }}</td>
+                                                <td class="text-muted">{{ $r->donor?->name ?? '—' }}</td>
+                                                <td><span class="badge bg-{{ $badge }}">{{ strtoupper($r->status) }}</span></td>
+                                                <td class="text-end text-muted small">{{ $r->created_at?->diffForHumans() }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
+                        @endif
+                    @else
+                        <div class="text-muted small">
+                            (Optional) Recent requests section will show once we pass $recentRequests from controller.
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- NGO TABLE --}}
-        <div class="card shadow-sm border-0 dashboard-card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">
-                    <i class="bi bi-building me-1"></i> Your NGO Information
-                </span>
-
-                <div class="input-group input-group-sm" style="width: 230px;">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control" placeholder="Search in table..." disabled>
+                    @endisset
                 </div>
             </div>
 
-            <div class="card-body p-0">
-                @if($ngos->count())
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width: 60px;">#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th style="width: 120px;">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($ngos as $ngo)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $ngo->name }}</td>
-                                        <td>{{ $ngo->email }}</td>
-                                        <td>{{ $ngo->phone ?? '-' }}</td>
-                                        <td>{{ $ngo->address ?? '-' }}</td>
-                                        <td>
-                                            @if($ngo->status === 'approved')
-                                                <span class="badge bg-success rounded-pill">Approved</span>
-                                            @elseif($ngo->status === 'pending')
-                                                <span class="badge bg-warning text-dark rounded-pill">Pending</span>
-                                            @else
-                                                <span class="badge bg-danger rounded-pill">Rejected</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <div class="p-4">
-                        <p class="mb-0 text-muted">No NGO found for this account.</p>
-                    </div>
-                @endif
+            <div class="mt-3 small text-muted">
+                Tip: Keep your phone/address updated so donors can coordinate pickup smoothly.
             </div>
+
         </div>
     </div>
 </div>
