@@ -119,12 +119,11 @@
         }
 
         .donor-footer {
-        background: #f4f6f6;
-        color: #555;
-        font-size: 0.9rem;
-        border-top: 1px solid #e0e0e0;
+            background: #f4f6f6;
+            color: #555;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
         }
-
     </style>
 
     {{-- ========== DASHBOARD PAGE HTML ========== --}}
@@ -143,8 +142,6 @@
                             donations and manage pickup requests with nearby NGOs.
                         </p>
                     </div>
-
-                
                 </div>
             </div>
 
@@ -183,7 +180,7 @@
                     </div>
                 </div>
 
-                {{-- Pickup Requests  --}}
+                {{-- Pickup Requests --}}
                 <div class="col-md-4">
                     <div class="dd-card">
                         <div class="dd-card-icon dd-card-icon--teal">
@@ -191,16 +188,16 @@
                         </div>
                         <div class="dd-card-title">Pickup Requests</div>
                         <p class="dd-card-text">
-                            Manage pickup requests from NGOs and keep track of collection status.
+                            NGOs will request pickup for your food posts. Review incoming requests and update the pickup status.
                         </p>
 
                         <div class="d-flex flex-wrap gap-2 mt-auto">
-                            
-                            <a href="{{ url('/donor/pickups/create') }}" class="btn btn-outline-success btn-sm">
-                                Request Pickup
+                            {{-- Donor does NOT request pickup. NGO requests pickup. --}}
+                            <a href="{{ route('donor.pickups.index') }}" class="btn btn-success btn-sm">
+                                View Requests
                             </a>
-                            <a href="{{ url('/donor/pickups') }}" class="btn btn-success btn-sm">
-                                My Requests
+                            <a href="{{ route('donor.donations') }}" class="btn btn-outline-secondary btn-sm">
+                                Manage Posts
                             </a>
                         </div>
                     </div>
@@ -212,67 +209,67 @@
     </div>
 
     {{-- ========================= --}}
-{{-- 🔔 RECENT NOTIFICATIONS --}}
-{{-- ========================= --}}
-<div class="mt-4 p-3 bg-white shadow-sm rounded">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">Recent Notifications</h5>
+    {{-- 🔔 RECENT NOTIFICATIONS --}}
+    {{-- ========================= --}}
+    <div class="mt-4 p-3 bg-white shadow-sm rounded">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Recent Notifications</h5>
 
-        {{-- ছোট bar/button: গত ৩ দিনের সব নোটিফিকেশন --}}
-        <button class="btn btn-sm btn-outline-secondary"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#last3DaysNotifications"
-                aria-expanded="false"
-                aria-controls="last3DaysNotifications">
-            Notifications (last 3 days: {{ $threeDaysNotifications->count() }})
-        </button>
-    </div>
+            {{-- ছোট bar/button: গত ৩ দিনের সব নোটিফিকেশন --}}
+            <button class="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#last3DaysNotifications"
+                    aria-expanded="false"
+                    aria-controls="last3DaysNotifications">
+                Notifications (last 3 days: {{ $threeDaysNotifications->count() }})
+            </button>
+        </div>
 
-    @if($recentNotifications->count())
-        @foreach($recentNotifications as $note)
-            <div class="mb-1">
-                <strong>{{ $note->data['ngo_name'] ?? 'NGO' }}</strong>
-                accepted your donation:
-                <span class="text-primary">"{{ $note->data['food_title'] ?? '' }}"</span>
-                <span class="text-muted small">· {{ $note->created_at->diffForHumans() }}</span>
-            </div>
-        @endforeach
-    @else
-        <p class="text-muted mb-0">No notifications yet.</p>
-    @endif
-</div>
-
- 
-<div class="collapse mt-3" id="last3DaysNotifications">
-    <div class="p-3 bg-white shadow-sm rounded">
-        <h5 class="mb-2">Notifications from Last 3 Days</h5>
-
-        @if($threeDaysNotifications->count())
-            @foreach($threeDaysNotifications as $note)
-                <div class="mb-2 border-bottom pb-1">
+        @if($recentNotifications->count())
+            @foreach($recentNotifications as $note)
+                <div class="mb-1">
                     <strong>{{ $note->data['ngo_name'] ?? 'NGO' }}</strong>
                     accepted your donation:
                     <span class="text-primary">"{{ $note->data['food_title'] ?? '' }}"</span>
-                    <div class="small text-muted">
-                        {{ $note->created_at->diffForHumans() }}
-                    </div>
+                    <span class="text-muted small">· {{ $note->created_at->diffForHumans() }}</span>
                 </div>
             @endforeach
         @else
-            <p class="text-muted mb-0">No notifications in the last 3 days.</p>
+            <p class="text-muted mb-0">No notifications yet.</p>
         @endif
     </div>
-</div>
+
+
+    <div class="collapse mt-3" id="last3DaysNotifications">
+        <div class="p-3 bg-white shadow-sm rounded">
+            <h5 class="mb-2">Notifications from Last 3 Days</h5>
+
+            @if($threeDaysNotifications->count())
+                @foreach($threeDaysNotifications as $note)
+                    <div class="mb-2 border-bottom pb-1">
+                        <strong>{{ $note->data['ngo_name'] ?? 'NGO' }}</strong>
+                        accepted your donation:
+                        <span class="text-primary">"{{ $note->data['food_title'] ?? '' }}"</span>
+                        <div class="small text-muted">
+                            {{ $note->created_at->diffForHumans() }}
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <p class="text-muted mb-0">No notifications in the last 3 days.</p>
+            @endif
+        </div>
+    </div>
 
 
     {{-- ===== SIMPLE DONOR FOOTER ===== --}}
-        <footer class="donor-footer text-center py-3 mt-4">
-            <div class="container">
-                 <p class="mb-0">
-                      © {{ date('Y') }} Food Waste Platform — Helping Reduce Food Waste.
-                 </p>
-            </div>
-        </footer>
+    <footer class="donor-footer text-center py-3 mt-4">
+        <div class="container">
+            <p class="mb-0">
+                © {{ date('Y') }} Food Waste Platform — Helping Reduce Food Waste.
+            </p>
+        </div>
+    </footer>
 
 @endsection

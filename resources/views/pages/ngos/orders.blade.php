@@ -119,9 +119,23 @@
                                             </td>
 
                                             <td>
-                                                <div class="fw-semibold">{{ $o->donor?->name ?? '—' }}</div>
-                                                <div class="text-muted small">{{ $o->donor?->phone ?? '—' }}</div>
-                                            </td>
+    <div class="fw-semibold d-flex align-items-center gap-2">
+        <span>{{ $o->donor?->name ?? '—' }}</span>
+
+        @if($o->donor)
+            <a href="{{ route('ngo.donor.show', $o->donor->id) }}"
+               class="btn btn-sm btn-outline-secondary py-0 px-2"
+               style="font-size: .78rem;">
+                View Profile
+            </a>
+        @endif
+    </div>
+
+    <div class="text-muted small">
+        {{ $o->donor?->phone ?? '—' }}
+    </div>
+</td>
+
 
                                             <td class="text-muted small">
                                                 {{ $o->pickup_time_from?->format('d M Y, h:i A') ?? '—' }}

@@ -8,34 +8,33 @@ use Illuminate\Support\Facades\Auth;
 
 class NgoOrderController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
-    // ✅ NGO: My Requests list
     public function index(Request $request)
     {
-        $userId = Auth::id();
-        $status = $request->query('status'); // optional filter
+        $ngoId = Auth::id();
+        $status = $request->query('status');
 
-        $query = PickupRequest::with(['foodPost', 'donor'])
-            ->where('ngo_user_id', $userId)
+        $q = PickupRequest::with(['foodPost', 'donor'])
+            ->where('ngo_user_id', $ngoId)
             ->latest();
 
         if ($status) {
-            $query->where('status', $status);
+            $q->where('status', $status);
         }
 
-        $orders = $query->paginate(15);
+        $orders = $q->paginate(10)->withQueryString();
 
         return view('pages.ngos.orders', compact('orders', 'status'));
     }
 
-    // ✅ NGO can cancel ONLY pending request
+    public function updateStatus(Request $request, PickupRequest $order)
+    {
+        // If you want NGO to update status, handle here (optional)
+        return back()->with('success', 'Status updated.');
+    }
+
     public function cancel(PickupRequest $pickupRequest)
     {
-        if ((int)$pickupRequest->ngo_user_id !== (int)Auth::id()) {
+        if ($pickupRequest->ngo_user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -48,6 +47,6 @@ class NgoOrderController extends Controller
             'cancelled_at' => now(),
         ]);
 
-        return back()->with('success', 'Request cancelled successfully.');
+        return back()->with('success', 'Request cancelled.');
     }
 }

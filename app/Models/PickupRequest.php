@@ -44,9 +44,9 @@ class PickupRequest extends Model
     }
 
     public function donor()
-    {
-        return $this->belongsTo(User::class, 'donor_user_id');
-    }
+{
+    return $this->belongsTo(\App\Models\User::class, 'donor_user_id');
+}
 
     public function ngo()
     {

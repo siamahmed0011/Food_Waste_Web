@@ -3,120 +3,122 @@
 namespace App\Http\Controllers\Donor;
 
 use App\Http\Controllers\Controller;
-use App\Models\FoodPost;
 use App\Models\PickupRequest;
+use App\Models\FoodPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PickupController extends Controller
 {
-    // Donor pickup requests list (own posts)
+    // Donor: incoming pickup requests list
     public function index(Request $request)
     {
-        $donorId = Auth::id();
-        $status = $request->query('status'); // optional filter
+        $user = Auth::user();
+        $status = $request->query('status');
 
-        $query = PickupRequest::with(['foodPost', 'ngo'])
-            ->where('donor_user_id', $donorId)
+        $q = PickupRequest::with(['foodPost', 'ngo'])
+            ->where('donor_user_id', $user->id)
             ->latest();
 
         if ($status) {
-            $query->where('status', $status);
+            $q->where('status', $status);
         }
 
-        $pickups = $query->paginate(15);
+        $pickups = $q->paginate(10)->withQueryString();
 
         return view('pages.donor.pickups.index', compact('pickups', 'status'));
     }
 
-    // Approve (transaction + auto reject others + food reserved)
-    public function approve(PickupRequest $pickupRequest, Request $request)
+    // Approve one request + auto reject others (same food_post)
+    public function approve(Request $request, PickupRequest $pickup)
     {
-        if ((int)$pickupRequest->donor_user_id !== (int)Auth::id()) {
+        $user = Auth::user();
+
+        if ($pickup->donor_user_id !== $user->id) {
             abort(403);
         }
 
-        $request->validate([
-            'final_pickup_at' => ['nullable', 'date'],
+        if ($pickup->status !== 'pending') {
+            return back()->with('error', 'Only pending requests can be approved.');
+        }
+
+        // optional final pickup time
+        $final = $request->input('final_pickup_at');
+
+        // Approve selected
+        $pickup->update([
+            'status'        => 'approved',
+            'final_pickup_at' => $final ?: null,
+            'approved_at'   => now(),
+            'rejected_at'   => null,
+            'rejected_reason' => null,
         ]);
 
-        DB::transaction(function () use ($pickupRequest, $request) {
+        // FoodPost reserved
+        if ($pickup->food_post_id) {
+            FoodPost::where('id', $pickup->food_post_id)->update(['status' => 'reserved']);
 
-            $pickup = PickupRequest::query()
-                ->lockForUpdate()
-                ->findOrFail($pickupRequest->id);
-
-            $food = FoodPost::query()
-                ->lockForUpdate()
-                ->findOrFail($pickup->food_post_id);
-
-            if ($pickup->status !== 'pending') {
-                abort(422, 'This request is not pending.');
-            }
-
-            if ($food->status !== 'available') {
-                abort(422, 'Food post is not available.');
-            }
-
-            $pickup->update([
-                'status' => 'approved',
-                'approved_at' => now(),
-                'final_pickup_at' => $request->input('final_pickup_at') ?: null,
-            ]);
-
-            $food->update([
-                'status' => 'reserved',
-            ]);
-
-            PickupRequest::query()
-                ->where('food_post_id', $food->id)
+            // Auto reject other pending requests for same post
+            PickupRequest::where('food_post_id', $pickup->food_post_id)
                 ->where('id', '!=', $pickup->id)
                 ->where('status', 'pending')
                 ->update([
                     'status' => 'rejected',
                     'rejected_at' => now(),
-                    'rejected_reason' => 'Another NGO request was approved.',
+                    'rejected_reason' => 'Another NGO was approved.',
                 ]);
-        });
+        }
 
         return back()->with('success', 'Pickup request approved.');
     }
 
-    public function reject(PickupRequest $pickupRequest, Request $request)
+    public function reject(Request $request, PickupRequest $pickup)
     {
-        if ((int)$pickupRequest->donor_user_id !== (int)Auth::id()) {
+        $user = Auth::user();
+
+        if ($pickup->donor_user_id !== $user->id) {
             abort(403);
         }
 
-        $request->validate([
-            'reason' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        if ($pickupRequest->status !== 'pending') {
-            return back()->with('error', 'Only pending requests can be rejected.');
+        if (!in_array($pickup->status, ['pending', 'approved'])) {
+            return back()->with('error', 'This request cannot be rejected now.');
         }
 
-        $pickupRequest->update([
+        $reason = $request->input('reason') ?: 'Rejected by donor';
+
+        $pickup->update([
             'status' => 'rejected',
             'rejected_at' => now(),
-            'rejected_reason' => $request->input('reason') ?: 'Rejected by donor.',
+            'rejected_reason' => $reason,
         ]);
+
+        // if food reserved by this request, set back available only if no other approved exists
+        if ($pickup->food_post_id) {
+            $hasApproved = PickupRequest::where('food_post_id', $pickup->food_post_id)
+                ->where('status', 'approved')
+                ->exists();
+
+            if (!$hasApproved) {
+                FoodPost::where('id', $pickup->food_post_id)->update(['status' => 'available']);
+            }
+        }
 
         return back()->with('success', 'Pickup request rejected.');
     }
 
-    public function pickedUp(PickupRequest $pickupRequest)
+    public function pickedUp(PickupRequest $pickup)
     {
-        if ((int)$pickupRequest->donor_user_id !== (int)Auth::id()) {
+        $user = Auth::user();
+
+        if ($pickup->donor_user_id !== $user->id) {
             abort(403);
         }
 
-        if ($pickupRequest->status !== 'approved') {
-            return back()->with('error', 'Only approved requests can be marked as picked up.');
+        if ($pickup->status !== 'approved') {
+            return back()->with('error', 'Only approved requests can be marked picked up.');
         }
 
-        $pickupRequest->update([
+        $pickup->update([
             'status' => 'picked_up',
             'picked_up_at' => now(),
         ]);
@@ -124,30 +126,28 @@ class PickupController extends Controller
         return back()->with('success', 'Marked as picked up.');
     }
 
-    public function complete(PickupRequest $pickupRequest)
+    public function complete(PickupRequest $pickup)
     {
-        if ((int)$pickupRequest->donor_user_id !== (int)Auth::id()) {
+        $user = Auth::user();
+
+        if ($pickup->donor_user_id !== $user->id) {
             abort(403);
         }
 
-        if (!in_array($pickupRequest->status, ['approved', 'picked_up'], true)) {
-            return back()->with('error', 'Only approved/picked up requests can be completed.');
+        if (!in_array($pickup->status, ['approved', 'picked_up'])) {
+            return back()->with('error', 'This request cannot be completed now.');
         }
 
-        DB::transaction(function () use ($pickupRequest) {
-            $pickup = PickupRequest::query()->lockForUpdate()->findOrFail($pickupRequest->id);
-            $food = FoodPost::query()->lockForUpdate()->findOrFail($pickup->food_post_id);
+        $pickup->update([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
 
-            $pickup->update([
-                'status' => 'completed',
-                'completed_at' => now(),
-            ]);
+        // FoodPost completed
+        if ($pickup->food_post_id) {
+            FoodPost::where('id', $pickup->food_post_id)->update(['status' => 'completed']);
+        }
 
-            $food->update([
-                'status' => 'completed',
-            ]);
-        });
-
-        return back()->with('success', 'Pickup completed successfully.');
+        return back()->with('success', 'Pickup completed.');
     }
 }
