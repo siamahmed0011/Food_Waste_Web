@@ -120,7 +120,7 @@
 
   <div class="auth-card">
 
-    <h2 class="auth-title">Welcome Back 👋</h2>
+    <h2 class="auth-title">Welcome Back </h2>
     <p class="auth-subtitle">
       Sign in to manage donations and pickups
     </p>

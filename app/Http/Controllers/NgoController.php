@@ -9,29 +9,26 @@ use Illuminate\Support\Facades\Auth;
 class NgoController extends Controller
 {
     public function index()
-    {
-        $ngoId = Auth::id();
+{
+    $ngoId = auth()->id();
 
-        $total = PickupRequest::where('ngo_user_id', $ngoId)->count();
-        $pending = PickupRequest::where('ngo_user_id', $ngoId)->where('status', 'pending')->count();
-        $completed = PickupRequest::where('ngo_user_id', $ngoId)->where('status', 'completed')->count();
+    $base = \App\Models\PickupRequest::with(['foodPost', 'donor'])
+        ->where('ngo_user_id', $ngoId);
 
-        // Fetch more, dashboard will show only last 3
-        $recent = PickupRequest::with(['foodPost', 'donor'])
-            ->where('ngo_user_id', $ngoId)
-            ->latest()
-            ->take(10)
-            ->get();
+    $stats = [
+        'total'     => (clone $base)->count(),
+        'pending'   => (clone $base)->where('status', 'pending')->count(),
+        'completed' => (clone $base)->where('status', 'completed')->count(),
+    ];
 
-        return view('pages.ngos.index', [
-            'stats' => [
-                'total' => $total,
-                'pending' => $pending,
-                'completed' => $completed,
-            ],
-            'recent' => $recent,
-        ]);
-    }
+    $recent = (clone $base)
+        ->latest()
+        ->take(10) // view এ last 3 দেখাবে, এটা extra safe
+        ->get();
+
+    return view('pages.ngos.index', compact('stats', 'recent'));
+}
+
 
     public function publicList()
     {

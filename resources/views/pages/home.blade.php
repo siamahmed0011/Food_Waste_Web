@@ -1,7 +1,7 @@
 {{-- resources/views/pages/home.blade.php --}}
 @extends('layouts.main')
 
-@section('title', 'Food Waste Platform')
+@section('title', 'Food Waste Reduce Platform')
 
 @section('content')
 <style>
@@ -116,15 +116,7 @@
     box-shadow: 0 18px 32px rgba(46,125,50,.34);
   }
 
-  .btn-hero-outline{
-    background: rgba(255,255,255,.08);
-    border-color: rgba(255,255,255,.26);
-    color: #fff;
-    backdrop-filter: blur(8px);
-  }
-  .btn-hero-outline:hover{
-    background: rgba(255,255,255,.12);
-  }
+ 
 
   .hero-trust{
     display:flex;
@@ -261,8 +253,7 @@
   }
   .btn-soft-primary{ background: var(--primary); color:#fff; }
   .btn-soft-primary:hover{ background: var(--primary-600); }
-  .btn-soft-outline{ background:#fff; border-color: var(--border); color: var(--text); }
-  .btn-soft-outline:hover{ background: #f9fafb; }
+
 
   /* ====== Contact ====== */
   .contact-card{
@@ -307,7 +298,7 @@
                   <a href="{{ route('signup.choice') }}" class="btn-hero btn-hero-primary">
                     Sign Up
                   </a>
-                  <a href="{{ route('login') }}" class="btn-hero btn-hero-outline">
+                  <a href="{{ route('login') }}" class="btn-hero btn-hero-primary">
                     Sign In
                   </a>
                 @endguest
@@ -433,7 +424,7 @@
               <li>Maintain pickup records</li>
             </ul>
 
-            <a href="{{ route('register.organization') }}" class="btn-soft btn-soft-outline">
+            <a href="{{ route('register.organization') }}" class="btn-soft btn-soft-primary">
               Register as Organization
             </a>
           </div>

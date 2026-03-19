@@ -17,7 +17,7 @@
         background: linear-gradient(135deg, #22c55e, #16a3b8);
         border-radius: 18px;
         color:#fff;
-        padding: 1.6rem 1.8rem;
+        padding: 2rem 2.5rem;
         box-shadow: 0 18px 35px rgba(15,23,42,.18);
         display:flex;
         justify-content:space-between;
@@ -26,7 +26,7 @@
     }
     .ngo-hero h1{
         font-size: clamp(1.7rem, 2.7vw, 2.2rem);
-        font-weight: 800;
+        font-weight: 600;
         margin:0 0 .35rem 0;
         letter-spacing:.02em;
     }
@@ -119,6 +119,33 @@
         font-weight: 600;
         color:#0f172a;
     }
+
+    .status-filter .btn {
+    font-size: .82rem;
+    padding: .45rem .85rem;
+    font-weight: 700;
+    border-radius: 999px;
+}
+
+
+    .sidebar-menu .list-group-item {
+    border: 0;
+    padding: 0.85rem 1.2rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.sidebar-menu .list-group-item:hover {
+    background: #f1f5f9;
+}
+
+.sidebar-menu .list-group-item.active {
+    background: #2563eb;
+    color: #fff;
+    border-radius: 10px;
+    margin: 6px;
+}
+
 
     .badge-soft{
         border-radius:999px;

@@ -20,7 +20,6 @@ class NgoFoodController extends Controller
             ->latest()
             ->paginate(10);
 
-        // blocked statuses => these mean already requested (so disable Accept)
         $blockedStatuses = ['pending', 'approved', 'picked_up', 'completed'];
 
         $requestedMap = PickupRequest::where('ngo_user_id', $ngoId)
@@ -41,19 +40,17 @@ class NgoFoodController extends Controller
 
     public function accept(FoodPost $foodPost)
     {
-        $user = Auth::user();
+        $ngoUser = Auth::user();
 
         if ($foodPost->status !== 'available') {
             return back()->with('error', 'This food is not available anymore.');
         }
 
-        // If already exists (any status), handle safely
         $existing = PickupRequest::where('food_post_id', $foodPost->id)
-            ->where('ngo_user_id', $user->id)
+            ->where('ngo_user_id', $ngoUser->id)
             ->first();
 
         if ($existing) {
-            // If it's already requested (even if status changed), do not crash
             return back()->with('error', 'You already requested this post.');
         }
 
@@ -61,17 +58,21 @@ class NgoFoodController extends Controller
             PickupRequest::create([
                 'food_post_id'     => $foodPost->id,
                 'donor_user_id'    => $foodPost->user_id,
-                'ngo_user_id'      => $user->id,
+                'ngo_user_id'      => $ngoUser->id,
                 'status'           => 'pending',
                 'pickup_time_from' => $foodPost->pickup_time_from,
                 'pickup_time_to'   => $foodPost->pickup_time_to,
-                'contact_phone'    => $user->phone ?? null,
+                'contact_phone'    => $ngoUser->phone ?? null,
                 'note'             => null,
             ]);
         } catch (QueryException $e) {
-            // Unique constraint violation fallback (just in case of race condition)
-            // pickup_requests_food_post_id_ngo_user_id_unique
             return back()->with('error', 'You already requested this post.');
+        }
+
+        // ✅ Notify donor (database notification)
+        $donor = $foodPost->donor; // FoodPost->donor relation must exist
+        if ($donor) {
+            $donor->notify(new \App\Notifications\DonationAcceptedNotification($ngoUser, $foodPost));
         }
 
         return back()->with('success', 'Pickup request sent! Waiting for donor approval.');

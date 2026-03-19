@@ -25,6 +25,13 @@ class User extends Authenticatable
         'address',
         'latitude',
         'longitude',
+        'donor_type',
+'organization_name',
+'pickup_address',
+'pickup_time',
+'alt_phone',
+'pickup_notes',
+
     ];
 
     protected $hidden = [

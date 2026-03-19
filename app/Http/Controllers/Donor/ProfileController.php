@@ -40,30 +40,33 @@ class ProfileController extends Controller
 
     // ========== UPDATE PROFILE DATA ==========
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = auth()->user();
 
-        $request->validate([
-            'name'    => 'required|string|max:255',
-            'phone'   => 'nullable|string|max:30',
-            'address' => 'nullable|string|max:255',
-            'image'   => 'nullable|image|max:2048',
-        ]);
+    $data = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'phone' => ['nullable', 'string', 'max:30'],
+        'address' => ['nullable', 'string', 'max:255'],
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('profile_images', 'public');
-            $user->image = $path;
-        }
+        'donor_type' => ['nullable', 'string', 'max:50'],
+        'organization_name' => ['nullable', 'string', 'max:255'],
+        'pickup_address' => ['nullable', 'string', 'max:1000'],
+        'pickup_time' => ['nullable', 'string', 'max:50'],
+        'alt_phone' => ['nullable', 'string', 'max:30'],
+        'pickup_notes' => ['nullable', 'string', 'max:1000'],
 
-        $user->name    = $request->name;
-        $user->phone   = $request->phone;
-        $user->address = $request->address;
-        $user->save();
+        'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+    ]);
 
-        return redirect()
-            ->route('donor.profile')
-            ->with('success', 'Profile updated successfully!');
+    // profile image
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('profiles', 'public');
     }
+
+    $user->update($data);
+
+    return redirect()->route('donor.profile')->with('success', 'Profile updated successfully.');
+}
 
     // ========== PASSWORD FORM ==========
     public function passwordForm()
